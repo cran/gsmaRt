@@ -1,0 +1,90 @@
+\documentclass[12pt]{article}
+\usepackage[left=3cm,right=2cm,top=3cm,bottom=2cm,a4paper,includehead,includefoot]{geometry} 
+\usepackage{natbib}
+\usepackage{amsmath}
+
+%\VignetteIndexEntry{Vignette on gsmaRt package}
+
+% TITLE PAGE
+\title{gsmaRt v. 1.0 Package Vignette}
+\author{Stephan Artmann <stephan-artmann@gmx.net>,\\Mathias Fuchs}
+\date{G\"ottingen 2011}
+
+
+% BEGIN OF DOCUMENT
+\begin{document}
+\maketitle
+\tableofcontents
+\section{Introduction}
+The 'gsmaRt' package (Gene Set Microarray Analysis) intends to bring together different functionalities for high-throughput gene set testing. This is based on random sampling from rotation data, as done for example by \cite[]{wu_roast:_2010}. The test statistic can either be a two-sample Wilcoxon Test or a reimplementation of the test statistic described in \cite[] {goeman_global_2004}. Multiple hypothesis testing correction is done as in \cite[]{tian}. A more detailed description shall soon be available \cite[] {fuchs_artmann_prep}.
+
+\section{Usage}
+An example on how to use gsmaRt is given here.\\
+In this synthetic experiment, 8 microarray replicates are present with three gene sets on each. Additionally, we need a corresponding matrix $\boldsymbol{Y}$ for mRNAs. Here we assume we have 20 mRNAs and 10 microarray replicates:
+<<DatagenerationY>>=
+#######################################
+### Generate random expression data ###
+#######################################
+# Generate random mRNA expression data with 20 mRNAs
+# and 10 replicates
+Y = rnorm(200);
+dim(Y) = c(20,10);
+rownames(Y) = 1:20;
+@
+We use a rather simple phenotype vector.
+
+<<groups>>=
+# Lets assume that the corresponding mRNA experiments had the following design:
+groups = (c(1,1,1,1,1,2,2,2,2,2));
+@
+
+Next, we need to know which gene is in which gene set, which is represented as a two-column data.frame, with genes in its first, gene sets in its second column. 
+<<allocation>>=
+####################
+### Perform Test ###
+####################
+library(gsmaRt)
+#Let gene set 1 contain mRNAs 1 to 9 and gene set 2 contain mRNAs 10 to 17.
+# Genes 18 to 20 are not contained anywhere. Gene set 3 is empty.
+miR = c(rep(1,9),c(rep(2,8)));
+mRNAs = 1:17;
+A = data.frame(mRNAs,miR); # Note that the gene sets MUST be in the second column!
+A
+@
+
+Finally, the function `analyse.gsmart' is called which does the testing.
+<<analysis>>=
+set.seed(1)
+P = analyse.gsmart(Y,groups,A)
+P
+
+
+@
+
+
+\begin{thebibliography}{}
+\bibitem[Fuchs and Artmann(pre.)]{fuchs_artmann_prep}
+\newblock{Fuchs, M. and Artmann, S. gsmaRt: Gene Set Microarray Testing.}
+\newblock{\em In preparation\/}
+
+\bibitem[Goeman {\em et~al.}(2004)Goeman, van~de Geer, de~Kort, and van
+  Houwelingen]{goeman_global_2004}
+Goeman, J.~J., van~de Geer, S.~A., de~Kort, F., and van Houwelingen, H.~C.
+  (2004).
+\newblock A global test for groups of genes: testing association with a
+  clinical outcome.
+\newblock {\em Bioinformatics\/}, {\bf 20}(1), 93 --99.
+\bibitem[Tian {\em et~al.}(2005)Tian L, Greenberg SA, Kong SW, Altschuler J, Kohane IS, Park PJ]{tian}
+Tian L, Greenberg SA, Kong SW, Altschuler J, Kohane IS, Park PJ (2005).
+\newblock Discovering statistically significant pathways in expression profiling studies.
+\newblock{\em PNAS}, {\bf 102}(13544-13549).
+\bibitem[Wu {\em et~al.}(2010)Wu, Lim, Vaillant, {Asselin-Labat}, Visvader, and
+  Smyth]{wu_roast:_2010}
+Wu, D., Lim, E., Vaillant, F., {Asselin-Labat}, M., Visvader, J.~E., and Smyth,
+  G.~K. (2010).
+\newblock {ROAST:} rotation gene set tests for complex microarray experiments.
+\newblock {\em Bioinformatics {(Oxford,} England)\/}, {\bf 26}(17).
+
+
+\end{thebibliography}
+\end{document}
